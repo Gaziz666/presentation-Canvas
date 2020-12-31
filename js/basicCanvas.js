@@ -21,8 +21,8 @@ let cp2 = { x: 250, y: 80 };
 
 const image1 = new Image();
 const frame1 = new Image();
-image1.src = './../examples/assets/gallery_1.jpg';
-frame1.src = './../examples/assets/frame.png';
+image1.src = '../examples/assets/gallery_1.jpg';
+frame1.src = './examples/assets/frame.png';
 const image2 = new Image();
 const frame2 = new Image();
 image2.src = './../examples/assets/gallery_6.jpg';
