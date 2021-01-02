@@ -235,7 +235,7 @@
               }
               drawCircle();
               function animation() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height); // clear canvas before draw circle
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
                 drawCircle();
                 circle.x += circle.dx;
                 circle.y += circle.dy;
@@ -258,6 +258,233 @@
 						</code></pre>
             <canvas id="canvas7" class="canvas" width="600" height="300">
             </canvas>
+          </section>
+        </section>
+        <section>
+          <section>
+            <h4>Animation</h4>
+            <pre><code class="codePath" data-trim data-noescape>
+              const player = {
+                w: 50,
+                h: 70,
+                x: 20,
+                y: 200,
+                speed: 5,
+                dx: 0,
+                dy: 0,
+              };
+            
+              function drawPlayer() {
+                ctx.drawImage(img, player.x, player.y, player.w, player.h);
+              }
+            
+              function clearCanvas() {
+                ctx.clearRect(0, 0, canvas8.width, canvas8.height); // clear canvas before draw circle
+              }
+            
+              function newPosition() {
+                player.x += player.dx;
+                player.y += player.dy;
+                detectWalls();
+              }
+            
+              function detectWalls() {
+                if (player.x < 0) {
+                  player.x = 0;
+                }
+                if (player.x + player.w > canvas8.width) {
+                  player.x = canvas8.width - player.w;
+                }
+                if (player.y + player.h > canvas8.height) {
+                  player.y = canvas8.height - player.h;
+                }
+                if (player.y < 0) {
+                  player.y = 0;
+                }
+              }
+            
+              function update() {
+                clearCanvas();
+                drawPlayer();
+                newPosition();
+              }
+              update();
+              playerTimer = setInterval(update, 16);
+            
+              function moveDown() {
+                player.dy = player.speed;
+              }
+            
+              function moveUp() {
+                player.dy = -player.speed;
+              }
+            
+              function moveRight() {
+                player.dx = player.speed;
+              }
+            
+              function moveLeft() {
+                player.dx = -player.speed;
+              }
+            
+              function keydown(e) {
+                if (e.keyCode === 222 || e.target.id === 'rightBtn') {
+                  moveRight();
+                  rightBtn.classList.add('active');
+                }
+                if (e.keyCode === 76 || e.target.id === 'leftBtn') {
+                  moveLeft();
+                  leftBtn.classList.add('active');
+                }
+                if (e.keyCode === 80 || e.target.id === 'upBtn') {
+                  moveUp();
+                  upBtn.classList.add('active');
+                }
+                if (e.keyCode === 186 || e.target.id === 'downBtn') {
+                  moveDown();
+                  downBtn.classList.add('active');
+                }
+              }
+              function keyup(e) {
+                if (
+                  e.keyCode === 222 ||
+                  e.keyCode === 76 ||
+                  e.keyCode === 80 ||
+                  e.keyCode === 186 ||
+                  e.target.id === 'rightBtn' ||
+                  e.target.id === 'leftBtn' ||
+                  e.target.id === 'upBtn' ||
+                  e.target.id === 'downBtn'
+                ) {
+                  player.dx = 0;
+                  player.dy = 0;
+                  rightBtn.classList.remove('active');
+                  leftBtn.classList.remove('active');
+                  upBtn.classList.remove('active');
+                  downBtn.classList.remove('active');
+                }
+              }
+              document.addEventListener('keydown', keydown);
+              document.addEventListener('keyup', keyup);
+              document.addEventListener('mousedown', keydown);
+              document.addEventListener('mouseup', keyup);
+            </code></pre>
+            <div class="canvas-wrapper-row">
+              <canvas id="canvas8" class="canvas" width="600" height="300">
+              </canvas>
+              <div class="keyboard">
+                <div class="keyboard-row">
+                  <div id="upBtn" class="keyboard__key">P</div>
+                </div>
+                <div class="keyboard-row">
+                  <div id="leftBtn" class="keyboard__key">L</div>
+                  <div id="downBtn" class="keyboard__key">;</div>
+                  <div id="rightBtn" class="keyboard__key">"</div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </section>
+        <section>
+          <section>
+            <h4>animation</h4>
+            <pre><code class="codePath" data-trim data-noescape>
+              function canvasPaint() {
+                let isMouseDown = false;
+                let coordinate = [];
+                ctx.restore();
+              
+                canvas.addEventListener('mousedown', () => {
+                  isMouseDown = true;
+                });
+                canvas.addEventListener('mouseup', () => {
+                  isMouseDown = false;
+                  ctx.beginPath();
+                  coordinate.push('mouseup');
+                });
+                const lineWidth = 5;
+                ctx.lineWidth = lineWidth * 2;
+              
+                canvas.addEventListener('mousemove', (e) => {
+                  const canvasBlock = e.target.closest('#canvas');
+                  const currentX = e.clientX - canvasBlock.offsetLeft;
+                  const currentY = e.clientY - canvasBlock.offsetTop;
+                  if (isMouseDown) {
+                    coordinate.push({ x: currentX, y: currentY });
+                    drawVectors(currentX, currentY);
+                  }
+                });
+              
+                function drawVectors(x, y) {
+                  ctx.lineTo(x, y);
+                  ctx.stroke();
+              
+                  ctx.beginPath();
+                  ctx.arc(x, y, lineWidth, 0, Math.PI * 2);
+                  ctx.fill();
+              
+                  ctx.beginPath();
+                  ctx.moveTo(x, y);
+                }
+              
+                function clear() {
+                  ctx.clearRect(0, 0, 600, 600);
+                  ctx.beginPath();
+                }
+              
+                function save() {
+                  localStorage.setItem('coordinate', JSON.stringify(coordinate));
+                  coordinate = [];
+                }
+              
+                function repeat() {
+                  const coordinate = JSON.parse(localStorage.getItem('coordinate'));
+                  let timer = setInterval(() => {
+                    if (coordinate.length === 0) {
+                      clearInterval(timer);
+                      ctx.beginPath();
+                      return;
+                    }
+                    crd = coordinate.shift();
+                    drawVectors(crd.x, crd.y);
+                  }, 30);
+                }
+              
+                document.addEventListener('keydown', (e) => {
+                  if (e.code === 'KeyS') {
+                    save();
+                  }
+                  if (e.code === 'KeyC') {
+                    clear();
+                  }
+                  if (e.code === 'KeyR') {
+                    clear();
+                    repeat();
+                  }
+                });
+              }  
+            </code></pre>
+            <div class="canvas-wrapper-row">
+              <canvas id="canvas9" class="canvas" width="600" height="300">
+              </canvas>
+              <div class="keyboard">
+                <div class="keyboard-row">
+                  <div id="save" class="keyboard__key keyboard__double_key">
+                    Save(E)
+                  </div>
+                </div>
+                <div class="keyboard-row">
+                  <div id="clear" class="keyboard__key keyboard__double_key">
+                    Clear(C)
+                  </div>
+                </div>
+                <div class="keyboard-row">
+                  <div id="repeat" class="keyboard__key keyboard__double_key">
+                    repeat(R)
+                  </div>
+                </div>
+              </div>
+            </div>
           </section>
         </section>
       </div>
@@ -285,6 +512,12 @@
       id="image3"
       src="./examples/assets/gallery_8.jpg"
       alt="frame"
+    />
+    <img
+      class="images"
+      id="source"
+      src="./examples/assets/char.png"
+      alt="img"
     />
     <script type="module" src="./js/basicCanvas.js"></script>
     <script src="dist/reveal.js"></script>

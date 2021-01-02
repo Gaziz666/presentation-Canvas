@@ -4,6 +4,16 @@ const canvas4 = document.querySelector('#canvas4');
 const canvas5 = document.querySelector('#canvas5');
 const canvas6 = document.querySelector('#canvas6');
 const canvas7 = document.querySelector('#canvas7');
+const canvas8 = document.querySelector('#canvas8');
+const canvas9 = document.querySelector('#canvas9');
+const upBtn = document.querySelector('#upBtn');
+const leftBtn = document.querySelector('#leftBtn');
+const downBtn = document.querySelector('#downBtn');
+const rightBtn = document.querySelector('#rightBtn');
+const img = document.querySelector('#source');
+const saveBtn = document.querySelector('#save');
+const clearBtn = document.querySelector('#clear');
+const repeatBtn = document.querySelector('#repeat');
 
 let ctx = null;
 let slideIndex = 0;
@@ -13,25 +23,14 @@ let clickCount4 = 0;
 let clickCount5 = 0;
 let clickCount6 = 0;
 let clickCount7 = 0;
+let clickCount8 = 0;
+let clickCount9 = 0;
 
 let start = { x: 150, y: 20 };
 let end = { x: 350, y: 100 };
 let cp1 = { x: 330, y: 30 }; // one ore more control point
 let cp2 = { x: 250, y: 80 };
 
-// const image1 = new Image();
-// const frame1 = new Image();
-// image1.src = '../examples/assets/gallery_1.jpg';
-// frame1.src = './examples/assets/frame.png';
-// const image2 = new Image();
-// const frame2 = new Image();
-// image2.src = './../examples/assets/gallery_6.jpg';
-// frame2.src = './../examples/assets/frame.png';
-
-// const image3 = new Image();
-// const frame3 = new Image();
-// image3.src = './../examples/assets/gallery_8.jpg';
-// frame3.src = './../examples/assets/frame.png';
 const frame = document.querySelector('#frame');
 const frame1 = frame;
 const frame2 = frame;
@@ -43,8 +42,11 @@ const image3 = document.querySelector('#image3');
 let timer1 = 0;
 let timer2 = 0;
 let timer3 = 0;
+let playerTimer = 0;
+let timerDrawing = 0;
+let coordinate = [];
 
-function clear() {
+function clearFigure() {
   if (clickCount2 === 1) {
     ctx.clearRect(15, 15, 400, 400);
   } else if (clickCount2 === 2) {
@@ -496,7 +498,6 @@ function animationCircleShow() {
       clearInterval(timer1);
       break;
     case 7:
-      // clearInterval(timer);
       clickCount7 += 1;
       moveToBottom();
       timer2 = setInterval(moveToBottom, 16); // - repeat unlimited
@@ -533,6 +534,222 @@ function animationCircleClear() {
   }
 }
 
+function playerMoveShow() {
+  const player = {
+    w: 50,
+    h: 70,
+    x: 20,
+    y: 200,
+    speed: 5,
+    dx: 0,
+    dy: 0,
+  };
+
+  function drawPlayer() {
+    ctx.drawImage(img, player.x, player.y, player.w, player.h);
+  }
+
+  function clearCanvas() {
+    ctx.clearRect(0, 0, canvas8.width, canvas8.height); // clear canvas before draw circle
+  }
+
+  function newPosition() {
+    player.x += player.dx;
+    player.y += player.dy;
+    detectWalls();
+  }
+
+  function detectWalls() {
+    if (player.x < 0) {
+      player.x = 0;
+    }
+    if (player.x + player.w > canvas8.width) {
+      player.x = canvas8.width - player.w;
+    }
+    if (player.y + player.h > canvas8.height) {
+      player.y = canvas8.height - player.h;
+    }
+    if (player.y < 0) {
+      player.y = 0;
+    }
+  }
+
+  function update() {
+    clearCanvas();
+    drawPlayer();
+    newPosition();
+
+    // requestAnimationFrame(update);
+  }
+  update();
+  playerTimer = setInterval(update, 16);
+
+  function moveDown() {
+    player.dy = player.speed;
+  }
+
+  function moveUp() {
+    player.dy = -player.speed;
+  }
+
+  function moveRight() {
+    player.dx = player.speed;
+  }
+
+  function moveLeft() {
+    player.dx = -player.speed;
+  }
+
+  function keydown(e) {
+    if (e.keyCode === 222 || e.target.id === 'rightBtn') {
+      moveRight();
+      rightBtn.classList.add('active');
+    }
+    if (e.keyCode === 76 || e.target.id === 'leftBtn') {
+      moveLeft();
+      leftBtn.classList.add('active');
+    }
+    if (e.keyCode === 80 || e.target.id === 'upBtn') {
+      moveUp();
+      upBtn.classList.add('active');
+    }
+    if (e.keyCode === 186 || e.target.id === 'downBtn') {
+      moveDown();
+      downBtn.classList.add('active');
+    }
+  }
+  function keyup(e) {
+    if (
+      e.keyCode === 222 ||
+      e.keyCode === 76 ||
+      e.keyCode === 80 ||
+      e.keyCode === 186 ||
+      e.target.id === 'rightBtn' ||
+      e.target.id === 'leftBtn' ||
+      e.target.id === 'upBtn' ||
+      e.target.id === 'downBtn'
+    ) {
+      player.dx = 0;
+      player.dy = 0;
+      rightBtn.classList.remove('active');
+      leftBtn.classList.remove('active');
+      upBtn.classList.remove('active');
+      downBtn.classList.remove('active');
+    }
+  }
+  document.addEventListener('keydown', keydown);
+  document.addEventListener('keyup', keyup);
+  document.addEventListener('mousedown', keydown);
+  document.addEventListener('mouseup', keyup);
+}
+
+function canvasPaint() {
+  let isMouseDown = false;
+  coordinate = [];
+  ctx.restore();
+
+  canvas9.addEventListener('mousedown', () => {
+    isMouseDown = true;
+  });
+  canvas9.addEventListener('mouseup', () => {
+    isMouseDown = false;
+    ctx.beginPath();
+    coordinate.push('mouseup');
+  });
+  const lineWidth = 5;
+  ctx.lineWidth = lineWidth * 2;
+
+  canvas9.addEventListener('mousemove', (e) => {
+    const canvasBlock = e.target.closest('#canvas9');
+    const currentX = e.offsetX;
+    const currentY = e.offsetY;
+    if (isMouseDown) {
+      coordinate.push({ x: currentX, y: currentY });
+      drawVectors(currentX, currentY);
+    }
+  });
+
+  function drawVectors(x, y) {
+    ctx.lineTo(x, y);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(x, y, lineWidth, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+  }
+
+  function clear() {
+    ctx.clearRect(0, 0, 600, 300);
+    ctx.beginPath();
+    clearBtn.classList.add('active');
+  }
+
+  function save() {
+    if (coordinate.length !== 0) {
+      localStorage.setItem('coordinate', JSON.stringify(coordinate));
+      coordinate = [];
+    }
+    saveBtn.classList.add('active');
+  }
+
+  function repeat() {
+    coordinate = JSON.parse(localStorage.getItem('coordinate'));
+    let crd = {};
+    repeatBtn.classList.add('active');
+    timerDrawing = setInterval(() => {
+      if (coordinate.length === 0) {
+        clearInterval(timerDrawing);
+        ctx.beginPath();
+        return;
+      }
+      crd = coordinate.shift();
+      drawVectors(crd.x, crd.y);
+    }, 30);
+  }
+
+  function removeActiveClass() {
+    clearBtn.classList.remove('active');
+    saveBtn.classList.remove('active');
+    repeatBtn.classList.remove('active');
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.code === 'KeyE') {
+      save();
+    }
+    if (e.code === 'KeyC') {
+      clear();
+    }
+    if (e.code === 'KeyR') {
+      clear();
+      repeat();
+    }
+  });
+
+  document.addEventListener('mousedown', (e) => {
+    if (e.target.id === 'save') {
+      save();
+    }
+    if (e.target.id === 'clear') {
+      clear();
+    }
+    if (e.target.id === 'repeat') {
+      clear();
+      repeat();
+    }
+  });
+
+  document.addEventListener('mouseup', removeActiveClass);
+  document.addEventListener('keyup', removeActiveClass);
+}
+
+function canvasPaintClear() {
+  clearInterval(timerDrawing);
+}
+
 Reveal.on('slidechanged', (event) => {
   slideIndex = event.indexh;
   switch (event.indexh) {
@@ -553,12 +770,23 @@ Reveal.on('slidechanged', (event) => {
       ctx = canvas5.getContext('2d');
       break;
     case 6:
-      clickCount6 = clickCount6 === 6 ? clickCount6 + 1 : 0;
+      clickCount6 = clickCount6 === 7 ? clickCount6 + 1 : 0;
       ctx = canvas6.getContext('2d');
       break;
     case 7:
       clickCount7 = clickCount7 === 10 ? clickCount7 + 1 : 0;
+      clearInterval(playerTimer);
       ctx = canvas7.getContext('2d');
+      // ctx.clearRect(0, 0, canvas8.width, canvas8.height); // clear canvas before draw circle
+      break;
+    case 8:
+      ctx = canvas8.getContext('2d');
+      clearInterval(timerDrawing);
+      break;
+    case 9:
+      // clickCount9 = clickCount6 === 7 ? clickCount6 + 1 : 0;
+      clearInterval(playerTimer);
+      ctx = canvas9.getContext('2d');
       break;
     default:
       break;
@@ -585,6 +813,12 @@ function show() {
     case 7:
       animationCircleShow();
       break;
+    case 8:
+      playerMoveShow();
+      break;
+    case 9:
+      canvasPaint();
+      break;
     default:
       break;
   }
@@ -592,7 +826,7 @@ function show() {
 function clearAndClose() {
   switch (slideIndex) {
     case 2:
-      clear();
+      clearFigure();
       break;
     case 3:
       clearTriangle();
@@ -608,6 +842,8 @@ function clearAndClose() {
       break;
     case 7:
       animationCircleClear();
+      break;
+    case 9:
       break;
     default:
       break;
