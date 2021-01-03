@@ -661,8 +661,10 @@ function canvasPaint() {
 
   canvas9.addEventListener('mousemove', (e) => {
     const canvasBlock = e.target.closest('#canvas9');
-    const currentX = e.offsetX;
-    const currentY = e.offsetY;
+    const currentX = e.offsetX * -0.07 + e.offsetX;
+    const currentY = e.offsetY * -0.07 + e.offsetY;
+    // const currentX = e.clientX - canvasBlock.offsetLeft;
+    // const currentY = e.clientY - canvasBlock.offsetTop;
     if (isMouseDown) {
       coordinate.push({ x: currentX, y: currentY });
       drawVectors(currentX, currentY);
