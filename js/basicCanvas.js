@@ -550,6 +550,7 @@ function playerMoveShow() {
   }
 
   function clearCanvas() {
+    coordinate = [];
     ctx.clearRect(0, 0, canvas8.width, canvas8.height); // clear canvas before draw circle
   }
 
